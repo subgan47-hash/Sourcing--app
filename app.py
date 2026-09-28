@@ -1,29 +1,13 @@
 import streamlit as st
-import subprocess
-import os
-
-# Automatische Playwright browser installatie voor de Streamlit server
-@st.cache_resource
-def install_playwright_browsers():
-    try:
-        # Controleer of de browser al bestaat, zo niet, installeer hem
-        if not os.path.exists("/home/appuser/.cache/ms-playwright"):
-            with st.spinner("Systeem configureert de browser voor de eerste keer, een moment geduld..."):
-                subprocess.run(["python", "-m", "playwright", "install", "chromium"], check=True)
-    except Exception as e:
-        st.error(f"Fout bij installeren browser: {e}")
-
-# Voer de installatie uit
-install_playwright_browsers()
-
-from playwright.sync_api import sync_playwright
+import requests
 from PIL import Image
 import io
+import re
 
 st.title("🚀 Free Sourcing Engine")
 st.write("Vind continu en 100% gratis Alibaba-leveranciers op basis van je Temu-foto's of product-links.")
 
-# Maak twee tabbladen aan in Streamlit voor een nette layout
+# Maak twee tabbladen aan in Streamlit
 tab1, tab2 = st.tabs(["📸 Screenshot Uploaden", "🔗 Temu Link Plakken"])
 
 # --- TAB 1: SCREENSHOT UPLOADEN ---
@@ -36,37 +20,43 @@ with tab1:
         st.image(image, caption='Geüploade afbeelding', use_column_width=True)
         st.info("Hier kun je jouw bestaande functie aanroepen om te zoeken op Alibaba!")
 
-# --- TAB 2: LINK PLAKKEN ---
+# --- TAB 2: LINK PLAKKEN (Simpele en snelle methode) ---
 with tab2:
     st.write("Plak hier direct de Temu product-link:")
     temu_url = st.text_input("Product URL", placeholder="https://temu.com...")
 
     if st.button("Zoek Leverancier via Link"):
         if temu_url:
-            with st.spinner("Temu pagina laden en foto ophalen..."):
+            with st.spinner("Temu pagina analyseren..."):
                 try:
-                    # Start Playwright op de achtergrond
-                    with sync_playwright() as p:
-                        browser = p.chromium.launch(headless=True)
-                        page = browser.new_page()
-                        
-                        # Ga naar de Temu link
-                        page.goto(temu_url, timeout=60000)
-                        
-                        # Wacht tot de pagina geladen is
-                        page.wait_for_selector("img", timeout=15000)
-                        
-                        # Maak een screenshot van de geladen pagina om de foto te pakken
-                        screenshot_bytes = page.screenshot(full_page=False)
-                        browser.close()
+                    # We bootsen een normale browser na zodat Temu ons niet blokkeert
+                    headers = {
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                    }
+                    response = requests.get(temu_url, headers=headers, timeout=15)
+                    html_content = response.text
                     
-                    # Zet de gemaakte screenshot om naar een PIL Image
-                    image_from_link = Image.open(io.BytesIO(screenshot_bytes))
+                    # We zoeken in de code van de pagina naar de link van de hoofdafbeelding
+                    # Temu slaat deze afbeeldingen vaak op als .jpg of .jpeg op hun CDN (bazzar / img.kwcdn)
+                    img_urls = re.findall(r'https://img\.kwcdn\.com/[^\s"\'>]+\.jpg', html_content)
                     
-                    st.success("Productfoto succesvol opgehaald!")
-                    st.image(image_from_link, caption='Gevonden productfoto', use_column_width=True)
-                    st.info("Hier stuur je deze foto door naar je Alibaba zoek-engine!")
-                    
+                    if not img_urls:
+                        img_urls = re.findall(r'https://img\.kwcdn\.com/[^\s"\'>]+\.jpeg', html_content)
+
+                    if img_urls:
+                        # Pak de allereerste grote productafbeelding die gevonden is
+                        main_img_url = img_urls[0]
+                        
+                        # Download de afbeelding
+                        img_response = requests.get(main_img_url, headers=headers, timeout=15)
+                        image_from_link = Image.open(io.BytesIO(img_response.content))
+                        
+                        st.success("Productfoto succesvol opgehaald!")
+                        st.image(image_from_link, caption='Gevonden productfoto van Temu', use_column_width=True)
+                        st.info("Hier stuur je deze foto door naar je Alibaba zoek-engine!")
+                    else:
+                        st.error("De productfoto kon niet direct uit de pagina gelezen worden. Probeer een andere Temu-link of gebruik een screenshot.")
+                        
                 except Exception as e:
                     st.error(f"Er ging iets mis bij het ophalen van de link: {e}")
         else:
