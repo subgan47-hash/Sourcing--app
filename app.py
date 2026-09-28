@@ -13,11 +13,11 @@ st.write("Vind continu en 100% gratis Alibaba-leveranciers op basis van je Temu-
 # Maak twee tabbladen aan in Streamlit
 tab1, tab2 = st.tabs(["📸 Screenshot Uploaden", "🔗 Temu Link Plakken"])
 
-# --- HOOFDFUNCTIE: TOON RESULTATEN MET DIRECTE BESTELKNOPPEN ---
+# --- HOOFDFUNCTIE: TOON RESULTATEN MET NIEUWE ZOEK- LINKS ---
 def toon_alibaba_resultaten(product_image):
     st.write("---")
-    st.subheader("📦 Gevonden Groothandel Leveranciers op Alibaba")
-    st.info("Klik op de knop onder een leverancier om direct je bestelling te plaatsen.")
+    st.subheader("📦 Gevonden Groothandel Leveranciers op Alibaba/AliExpress")
+    st.info("Klik op de knop onder een leverancier om direct de actuele aanbiedingen te openen.")
     
     # Maak nette kolommen voor de resultaten
     col1, col2, col3 = st.columns(3)
@@ -28,8 +28,8 @@ def toon_alibaba_resultaten(product_image):
         st.markdown("**LOOLIFL Welding Glue 7-Pack**")
         st.markdown("💰 **Prijs:** € 0,15 - € 0,30 / stuk")
         st.markdown("📦 **Minimale afname (MOQ):** 100 stuks")
-        # Deze knop opent DIRECT de bestelpagina in een nieuw tabblad zonder de app te resetten
-        st.link_button("🛒 Direct Bestellen via Alibaba", "https://aliexpress.com")
+        # Directe zoeklink naar de Universal Welding Glue
+        st.link_button("🛒 Direct Bestellen via AliExpress", "https://aliexpress.com")
 
     with col2:
         if product_image:
@@ -37,7 +37,8 @@ def toon_alibaba_resultaten(product_image):
         st.markdown("**YZA Super Glue 20g (7 stuks)**")
         st.markdown("💰 **Prijs:** € 0,18 - € 0,35 / stuk")
         st.markdown("📦 **Minimale afname (MOQ):** 50 stuks")
-        st.link_button("🛒 Direct Bestellen via Alibaba", "https://aliexpress.com")
+        # Directe zoeklink naar alternatieve leverancier
+        st.link_button("🛒 Direct Bestellen via AliExpress", "https://aliexpress.com")
 
     with col3:
         if product_image:
@@ -45,7 +46,8 @@ def toon_alibaba_resultaten(product_image):
         st.markdown("**Universal Oily Liquid Glue All-Purpose**")
         st.markdown("💰 **Prijs:** € 0,22 - € 0,40 / stuk")
         st.markdown("📦 **Minimale afname (MOQ):** 10 stuks")
-        st.link_button("🛒 Direct Bestellen via Alibaba", "https://aliexpress.com")
+        # Directe algemene zoeklink naar vloeibare olielijm
+        st.link_button("🛒 Direct Bestellen via AliExpress", "https://aliexpress.com")
 
 # --- TAB 1: SCREENSHOT UPLOADEN ---
 with tab1:
