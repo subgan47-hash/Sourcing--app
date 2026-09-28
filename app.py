@@ -17,10 +17,10 @@ with tab1:
     
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
-        st.image(image, caption='Geüploade afbeelding', use_column_width=True)
+        st.image(image, caption='Geüploade afbeelding', use_container_width=True)
         st.info("Hier kun je jouw bestaande functie aanroepen om te zoeken op Alibaba!")
 
-# --- TAB 2: LINK PLAKKEN (Simpele en snelle methode) ---
+# --- TAB 2: LINK PLAKKEN ---
 with tab2:
     st.write("Plak hier direct de Temu product-link:")
     temu_url = st.text_input("Product URL", placeholder="https://temu.com...")
@@ -36,15 +36,14 @@ with tab2:
                     response = requests.get(temu_url, headers=headers, timeout=15)
                     html_content = response.text
                     
-                    # We zoeken in de code van de pagina naar de link van de hoofdafbeelding
-                    # Temu slaat deze afbeeldingen vaak op als .jpg of .jpeg op hun CDN (bazzar / img.kwcdn)
+                    # We zoeken in de code naar de link van de afbeelding
                     img_urls = re.findall(r'https://img\.kwcdn\.com/[^\s"\'>]+\.jpg', html_content)
                     
                     if not img_urls:
                         img_urls = re.findall(r'https://img\.kwcdn\.com/[^\s"\'>]+\.jpeg', html_content)
 
                     if img_urls:
-                        # Pak de allereerste grote productafbeelding die gevonden is
+                        # Pak de eerste afbeelding
                         main_img_url = img_urls[0]
                         
                         # Download de afbeelding
@@ -52,7 +51,7 @@ with tab2:
                         image_from_link = Image.open(io.BytesIO(img_response.content))
                         
                         st.success("Productfoto succesvol opgehaald!")
-                        st.image(image_from_link, caption='Gevonden productfoto van Temu', use_column_width=True)
+                        st.image(image_from_link, caption='Gevonden productfoto van Temu', use_container_width=True)
                         st.info("Hier stuur je deze foto door naar je Alibaba zoek-engine!")
                     else:
                         st.error("De productfoto kon niet direct uit de pagina gelezen worden. Probeer een andere Temu-link of gebruik een screenshot.")
