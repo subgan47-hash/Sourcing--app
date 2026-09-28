@@ -13,19 +13,18 @@ st.write("Vind continu en 100% gratis Alibaba-leveranciers op basis van je Temu-
 # Maak twee tabbladen aan in Streamlit
 tab1, tab2 = st.tabs(["📸 Screenshot Uploaden", "🔗 Temu Link Plakken"])
 
-# --- HOOFDFUNCTIE: TOON RESULTATEN MET DOWNLOADKNOP ---
+# --- HOOFDFUNCTIE: TOON RESULTATEN MET DE NIEUWE DOWNLOADKNOP ---
 def toon_alibaba_resultaten(product_image):
     st.write("---")
     st.subheader("📦 Gevonden Groothandel Leveranciers op Alibaba")
-    st.info("💡 TIP: Download de productfoto hieronder en klik in de zoekbalk van Alibaba op het camera-icoontje 📷 om exact dezelfde leverancier te vinden!")
     
-    # Zorg dat de afbeelding gedownload kan worden als JPG bestand
+    # NIEUW: Als er een foto is gevonden, maken we hier een actieve downloadknop van
     if product_image:
         buf = io.BytesIO()
         product_image.convert("RGB").save(buf, format="JPEG")
         byte_im = buf.getvalue()
         
-        # Voeg een duidelijke downloadknop toe voor de gebruiker
+        st.info("🎯 OM HET EXACTE PRODUCT TE VINDEN: Klik hieronder om de foto op te slaan. Upload deze daarna via het camera-icoontje 📷 op Alibaba!")
         st.download_button(
             label="💾 Download deze productfoto voor Alibaba",
             data=byte_im,
@@ -35,7 +34,7 @@ def toon_alibaba_resultaten(product_image):
     
     st.write(" ")
     
-    # Maak nette kolommen voor de demonstratie-leveranciers
+    # Maak de kolommen voor het overzicht
     col1, col2, col3 = st.columns(3)
     
     with col1:
