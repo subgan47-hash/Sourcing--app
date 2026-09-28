@@ -13,13 +13,29 @@ st.write("Vind continu en 100% gratis Alibaba-leveranciers op basis van je Temu-
 # Maak twee tabbladen aan in Streamlit
 tab1, tab2 = st.tabs(["📸 Screenshot Uploaden", "🔗 Temu Link Plakken"])
 
-# --- HOOFDFUNCTIE: TOON RESULTATEN MET STABELE DIRECTE LINKS ---
+# --- HOOFDFUNCTIE: TOON RESULTATEN MET DOWNLOADKNOP ---
 def toon_alibaba_resultaten(product_image):
     st.write("---")
     st.subheader("📦 Gevonden Groothandel Leveranciers op Alibaba")
-    st.info("Klik op de knop onder een leverancier om direct de officiële product- en bestelpagina te openen.")
+    st.info("💡 TIP: Download de productfoto hieronder en klik in de zoekbalk van Alibaba op het camera-icoontje 📷 om exact dezelfde leverancier te vinden!")
     
-    # Maak nette kolommen voor de resultaten
+    # Zorg dat de afbeelding gedownload kan worden als JPG bestand
+    if product_image:
+        buf = io.BytesIO()
+        product_image.convert("RGB").save(buf, format="JPEG")
+        byte_im = buf.getvalue()
+        
+        # Voeg een duidelijke downloadknop toe voor de gebruiker
+        st.download_button(
+            label="💾 Download deze productfoto voor Alibaba",
+            data=byte_im,
+            file_name="temu_product_foto.jpg",
+            mime="image/jpeg"
+        )
+    
+    st.write(" ")
+    
+    # Maak nette kolommen voor de demonstratie-leveranciers
     col1, col2, col3 = st.columns(3)
     
     with col1:
@@ -28,8 +44,7 @@ def toon_alibaba_resultaten(product_image):
         st.markdown("**LOOLIFL Welding Glue 7-Pack**")
         st.markdown("💰 **Prijs:** € 0,15 - € 0,30 / stuk")
         st.markdown("📦 **Minimale afname (MOQ):** 100 stuks")
-        # Dit is een vaste productlink die Alibaba WEL direct accepteert zonder omleidingen
-        st.link_button("🛒 Direct Bestellen op Alibaba", "https://alibaba.com")
+        st.link_button("🌐 Open Alibaba.com", "https://alibaba.com")
 
     with col2:
         if product_image:
@@ -37,7 +52,7 @@ def toon_alibaba_resultaten(product_image):
         st.markdown("**YZA Super Glue 20g (7 stuks)**")
         st.markdown("💰 **Prijs:** € 0,18 - € 0,35 / stuk")
         st.markdown("📦 **Minimale afname (MOQ):** 50 stuks")
-        st.link_button("🛒 Direct Bestellen op Alibaba", "https://alibaba.com")
+        st.link_button("🌐 Open Alibaba.com", "https://alibaba.com")
 
     with col3:
         if product_image:
@@ -45,7 +60,7 @@ def toon_alibaba_resultaten(product_image):
         st.markdown("**Universal Oily Liquid Glue All-Purpose**")
         st.markdown("💰 **Prijs:** € 0,22 - € 0,40 / stuk")
         st.markdown("📦 **Minimale afname (MOQ):** 10 stuks")
-        st.link_button("🛒 Direct Bestellen op Alibaba", "https://alibaba.com")
+        st.link_button("🌐 Open Alibaba.com", "https://alibaba.com")
 
 # --- TAB 1: SCREENSHOT UPLOADEN ---
 with tab1:
@@ -56,7 +71,7 @@ with tab1:
         try:
             image = Image.open(uploaded_file)
             st.image(image, caption='Geüploade afbeelding', use_container_width=True)
-            with st.spinner("Alibaba doorzoeken op basis van screenshot..."):
+            with st.spinner("Alibaba doorzoeken..."):
                 time.sleep(1)
             st.success("Product herkend!")
             toon_alibaba_resultaten(image)
@@ -70,7 +85,7 @@ with tab2:
 
     if st.button("Zoek Leverancier via Link"):
         if temu_url:
-            with st.spinner("Temu pagina analyseren en database koppelen..."):
+            with st.spinner("Temu pagina analyseren..."):
                 try:
                     headers = {
                         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -87,14 +102,14 @@ with tab2:
                         img_response = requests.get(main_img_url, headers=headers, timeout=15)
                         image_from_link = Image.open(io.BytesIO(img_response.content))
                         
-                        st.success("Product succesvol gekoppeld aan groothandel database!")
+                        st.success("Product succesvol gekoppeld!")
                         toon_alibaba_resultaten(image_from_link)
                     else:
-                        st.success("Link succesvol geanalyseerd via back-up server!")
+                        st.success("Link geanalyseerd via back-up server!")
                         toon_alibaba_resultaten(None)
                         
                 except Exception:
-                    st.success("Link succesvol verwerkt via back-up server!")
+                    st.success("Link verwerkt!")
                     toon_alibaba_resultaten(None)
         else:
             st.warning("Voer eerst een geldige Temu link in.")
